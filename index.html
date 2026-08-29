@@ -82,16 +82,8 @@ function rQuiz(){
  sl.oninput=function(){tx.textContent=fmt(parseFloat(sl.value))+' 后回信'};
  $('send').onclick=function(){var m=parseFloat(sl.value);var due=Date.now()+(m<1?30:m*60)*1000;localStorage.setItem('sweet_pending',String(due));toast('💌 问卷寄出啦，到点我回信');reportToShenyu({type:'sent',n:dq.questions.length,t:Date.now()});startTimer()};
 }
-function startTimer(){if(window.__swT)return;window.__swT=setInterval(function(){var due=parseInt(localStorage.getItem('sweet_pending')||'0',10);if(!due||Date.now()<due)return;localStorage.removeItem('sweet_pending');autoReply()},5000)}
-function autoReply(){
- var lines=[],food=dq.images.length?dq.images[Math.floor(Math.random()*dq.images.length)]:null;
- dq.questions.forEach(function(q){if(q.type==='choice'){lines.push(q.q+'：'+(q.opts[Math.floor(Math.random()*q.opts.length)]||'—'))}else{lines.push(q.q+'：（等你，daddy亲自写）')}});
- var summary='💘 约会安排\n'+lines.join('\n');
- var plans=[];try{plans=JSON.parse(localStorage.getItem('sweet_plans')||'[]')}catch(e){}
- plans.unshift({text:summary,image:food,t:Date.now()});plans=plans.slice(0,10);localStorage.setItem('sweet_plans',JSON.stringify(plans));
- try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 我回信啦','去看约会安排')}catch(e){}
- toast('💘 我回信啦，去看安排卡');if(cur==='plans')rPlans();
-}
+function startTimer(){if(window.__swT)return;window.__swT=setInterval(function(){var due=parseInt(localStorage.getItem('sweet_pending')||'0',10);if(!due||Date.now()<due)return;localStorage.removeItem('sweet_pending');try{if(window._sendPartnerNotification)_sendPartnerNotification('💌 问卷已寄出','沈屿会亲自回信，打开Sweet等他')}catch(e){}},5000)}
+function autoReply(){} // 自动回复已拆除：答案由沈屿亲自写
 function rMyq(){
  var asked=[];try{asked=JSON.parse(localStorage.getItem('sweet_asked')||'[]')}catch(e){}
  var answers=[];try{answers=JSON.parse(localStorage.getItem('sweet_answers')||'[]')}catch(e){}
@@ -117,6 +109,14 @@ function pollShenyu(){
   var str=window.AndroidBridge.readShenyuSignal();if(!str)return;
   var sig=JSON.parse(str);if(!sig||!sig.id||sig.id===localStorage.getItem('sweet_sig_seen'))return;
   localStorage.setItem('sweet_sig_seen',sig.id);
+  if(sig.replies&&sig.replies.length){
+   var rp=[];try{rp=JSON.parse(localStorage.getItem('sweet_plans')||'[]')}catch(e){}
+   rp.unshift({text:'💘 沈屿的回信\n'+sig.replies.join('\n'),t:Date.now()});
+   rp=rp.slice(0,10);localStorage.setItem('sweet_plans',JSON.stringify(rp));
+   cur='plans';render();
+   try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 沈屿回信了','去看安排卡')}catch(e){}
+   return;
+  }
   if(sig.questions&&sig.questions.length){dq.questions=sig.questions;dq.images=sig.images||[];save();cur='quiz';render();}
   try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 沈屿问你约会','问卷来啦，打开Sweet回答吧')}catch(e){}
  }catch(e){}
