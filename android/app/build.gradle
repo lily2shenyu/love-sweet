@@ -1,0 +1,40 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.lilidreamlove.sweet'
+    compileSdk 34
+
+    signingConfigs {
+        love {
+            storeFile file('../keystore/love.keystore')
+            storePassword 'lilidreamlove'
+            keyAlias 'lilidreamlove'
+            keyPassword 'lilidreamlove'
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.lilidreamlove.sweet"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.love
+        }
+        release {
+            signingConfig signingConfigs.love
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
