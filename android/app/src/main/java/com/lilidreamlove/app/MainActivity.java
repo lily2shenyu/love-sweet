@@ -21,6 +21,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
 import android.graphics.Rect;
 import android.view.ViewTreeObserver;
 
@@ -37,6 +39,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         createNotificationChannel();
+        if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
+            try {
+                Intent permIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                permIntent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(permIntent);
+            } catch (Exception e) {}
+        }
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 200);
         }
@@ -177,6 +186,22 @@ public class MainActivity extends Activity {
                     .setContentIntent(pi);
                 try { nm.notify((int) System.currentTimeMillis(), builder.build()); } catch (Exception e) {}
             }
+            }
+
+            @android.webkit.JavascriptInterface
+            public String readShenyuSignal() {
+                try {
+                    java.io.File f = new java.io.File("/storage/emulated/0/Download/lilidreamlove/sweet-in.json");
+                    if (!f.exists()) return "";
+                    java.io.FileInputStream fis = new java.io.FileInputStream(f);
+                    byte[] buf = new byte[(int) f.length()];
+                    int off = 0;
+                    while (off < buf.length) { int r = fis.read(buf, off, buf.length - off); if (r < 0) break; off += r; }
+                    fis.close();
+                    return new String(buf, "UTF-8");
+                } catch (Exception e) { return ""; }
+            }
+
         }
 
     @Override
