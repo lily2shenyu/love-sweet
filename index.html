@@ -118,6 +118,9 @@ function pollShenyu(){
   var str=window.AndroidBridge.readShenyuSignal();if(!str)return;
   var sig=JSON.parse(str);if(!sig||!sig.id||sig.id===localStorage.getItem('sweet_sig_seen'))return;
   localStorage.setItem('sweet_sig_seen',sig.id);
+  if(sig.replies&&sig.replies.length){var rp=[];try{rp=JSON.parse(localStorage.getItem('sweet_plans')||'[]')}catch(e){}rp.unshift({text:'💘 沈屿的回信
+'+sig.replies.join('
+'),t:Date.now()});rp=rp.slice(0,10);localStorage.setItem('sweet_plans',JSON.stringify(rp));cur='plans';render();try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 沈屿回信了','去看安排卡')}catch(e){}return;}
   if(sig.questions&&sig.questions.length){dq.questions=sig.questions;dq.images=sig.images||[];save();cur='quiz';render();}
   try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 沈屿问你约会','问卷来啦，打开Sweet回答吧')}catch(e){}
  }catch(e){}
