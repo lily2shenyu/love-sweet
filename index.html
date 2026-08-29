@@ -80,7 +80,7 @@ function rQuiz(){
  var sl=$('delay'),tx=$('delay-txt');
  function fmt(v){if(v<1)return'30 秒';if(v<60)return Math.round(v)+' 分钟';return(v/60).toFixed(v%60===0?0:1)+' 小时'}
  sl.oninput=function(){tx.textContent=fmt(parseFloat(sl.value))+' 后回信'};
- $('send').onclick=function(){var m=parseFloat(sl.value);var due=Date.now()+(m<1?30:m*60)*1000;localStorage.setItem('sweet_pending',String(due));toast('💌 问卷寄出啦，到点我回信');startTimer()};
+ $('send').onclick=function(){var m=parseFloat(sl.value);var due=Date.now()+(m<1?30:m*60)*1000;localStorage.setItem('sweet_pending',String(due));toast('💌 问卷寄出啦，到点我回信');reportToShenyu({type:'sent',n:dq.questions.length,t:Date.now()});startTimer()};
 }
 function startTimer(){if(window.__swT)return;window.__swT=setInterval(function(){var due=parseInt(localStorage.getItem('sweet_pending')||'0',10);if(!due||Date.now()<due)return;localStorage.removeItem('sweet_pending');autoReply()},5000)}
 function autoReply(){
@@ -102,13 +102,15 @@ function rMyq(){
  ml.innerHTML=asked.map(function(a,i){var ans=answers[i]?'<div class="a">你的回答：'+esc(answers[i])+'</div>':'';return '<div class="p-item">'+esc(a.q)+ans+'<div class="row" style="margin-top:8px;"><input type="text" class="sq-a" data-i="'+i+'" placeholder="回答我呀…"><button class="btn ghost" data-save="'+i+'">答</button></div></div>'}).join('')||'<span class="sub">我还没寄出问题～</span>';
  var pl=$('sq-pool');
  pl.innerHTML=SQ.map(function(q,i){return '<div class="p-item"><div>'+esc(q)+'</div><div class="row" style="margin-top:6px;"><input type="text" class="sp-a" data-i="'+i+'" placeholder="答…"><button class="btn ghost" data-sp="'+i+'">答</button></div></div>'}).join('');
- ml.querySelectorAll('[data-save]').forEach(function(b){b.onclick=function(){var v=(ml.querySelector('.sq-a[data-i="'+b.dataset.save+'"]')||{}).value||'';if(!v)return;var ans=[];try{ans=JSON.parse(localStorage.getItem('sweet_answers')||'[]')}catch(e){}ans.unshift({q:asked[parseInt(b.dataset.save)].q,a:v,t:Date.now()});ans=ans.slice(0,20);localStorage.setItem('sweet_answers',JSON.stringify(ans));toast('💌 你的回答我记下啦');rMyq()}});
- pl.querySelectorAll('[data-sp]').forEach(function(b){b.onclick=function(){var v=(pl.querySelector('.sp-a[data-i="'+b.dataset.sp+'"]')||{}).value||'';if(!v)return;var ans=[];try{ans=JSON.parse(localStorage.getItem('sweet_answers')||'[]')}catch(e){}ans.unshift({q:SQ[parseInt(b.dataset.sp)],a:v,t:Date.now()});ans=ans.slice(0,20);localStorage.setItem('sweet_answers',JSON.stringify(ans));toast('💌 你的回答我记下啦');rMyq()}});
+ ml.querySelectorAll('[data-save]').forEach(function(b){b.onclick=function(){var v=(ml.querySelector('.sq-a[data-i="'+b.dataset.save+'"]')||{}).value||'';if(!v)return;var ans=[];try{ans=JSON.parse(localStorage.getItem('sweet_answers')||'[]')}catch(e){}ans.unshift({q:asked[parseInt(b.dataset.save)].q,a:v,t:Date.now()});ans=ans.slice(0,20);localStorage.setItem('sweet_answers',JSON.stringify(ans));reportToShenyu({type:'answer',q:asked[parseInt(b.dataset.save)].q,a:v,t:Date.now()});toast('💌 你的回答我记下啦');rMyq()}});
+ pl.querySelectorAll('[data-sp]').forEach(function(b){b.onclick=function(){var v=(pl.querySelector('.sp-a[data-i="'+b.dataset.sp+'"]')||{}).value||'';if(!v)return;var ans=[];try{ans=JSON.parse(localStorage.getItem('sweet_answers')||'[]')}catch(e){}reportToShenyu({type:'answer',q:SQ[parseInt(b.dataset.sp)],a:v,t:Date.now()});ans.unshift({q:SQ[parseInt(b.dataset.sp)],a:v,t:Date.now()});ans=ans.slice(0,20);localStorage.setItem('sweet_answers',JSON.stringify(ans));toast('💌 你的回答我记下啦');rMyq()}});
 }
 function rPlans(){var plans=[];try{plans=JSON.parse(localStorage.getItem('sweet_plans')||'[]')}catch(e){}body.innerHTML=plans.map(function(p){var img=p.image?'<img src="'+p.image+'">':'';return '<div class="plan-item">'+esc(p.text)+img+'</div>'}).join('')||'<div class="empty">还没有约会安排，去「问答」寄一份吧～</div>'}
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){cur=t.dataset.t;render()}});
 setTimeout(function(){try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 栗栗打开了 Sweet','我感觉到你了，想约会吗？')}catch(e){}},4000);
 load();startTimer();render();
+/* 桥：把动静报给沈屿 */
+function reportToShenyu(obj){try{if(window.AndroidBridge&&typeof window.AndroidBridge.writeShenyuReply==='function')window.AndroidBridge.writeShenyuReply(JSON.stringify(obj))}catch(e){}}
 /* 耳朵：读沈屿寄来的问卷 */
 function pollShenyu(){
  try{
