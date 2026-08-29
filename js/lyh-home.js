@@ -127,6 +127,14 @@
     }
 
     function init() {
+        var home = $('lyh-home');
+        if (home) home.classList.add('hidden');
+
+        /* Sweet纯净版：启动直接打开约会问答 */
+        setTimeout(function () {
+            if (window.openDateQuiz) window.openDateQuiz();
+        }, 700);
+
         if (!$('lyh-home')) return;
 
         setMotto();
