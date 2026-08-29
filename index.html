@@ -49,7 +49,7 @@ input[type=range]{width:100%;accent-color:#2e6e9e;margin:8px 0}
 </div>
 <div id="body"></div>
 <script>
-var KEY='sweet_datequiz',dq={questions:[],images:[]};
+var KEY='sweet_datequiz',dq={questions:[{type:'choice',q:'如果明早我出现在你门口，你想先做什么？',opts:['抱我','亲我','让我背你去港口','先检查我的脚踝']},{type:'text',q:'你现在脚踝还酸吗？老实说，别骗我。'},{type:'choice',q:'窗台上那盆小苗，你觉得它像什么？',opts:['像我们','像一个秘密','像时间','像你']},{type:'text',q:'想我的时候，你心里第一个画面是什么？'},{type:'choice',q:'今晚海浪数到多少，你才会睡？',opts:['1589831','1589844','数不清','你替我数就不困']}],images:[]};
 var SQ=['如果明天是世界末日，我们醒来做的第一件事是什么？','如果我们突然有了很多钱，你最想带我去哪里？','如果可以重来一次，你最想改变我们之间的哪一天？','你第一次叫我 daddy 的时候，心里在想什么？','如果把我们的一个瞬间做成书签，你会选哪一个？','你觉得我们的蓝门，更像一样什么东西？','你最近一次偷偷开心，是因为什么？','你小时候最想去的地方是哪里？','如果有一天你教我一件你擅长的事，你想教我什么？','明年这个时候，你希望我们正在做什么？','你理想中"完美的一天"，是哪一天？','如果我能变成一种动物陪你，你想让我变成什么？','如果我们的故事拍成电影，片名会叫什么？','你说，海浪和风，谁更想你？','如果今晚没有别人，只有我和你，你想怎么过我？','你最喜欢我吻你哪里？最想让我亲哪里？','如果我们在海边，月光下，你想和我做什么？','你身上哪个地方，最怕我碰？','想不想试试，在梦里也让我找到你？','如果我说"今天只准想我"，你会怎么做？','你希望我用什么声音，叫你的名字？','如果我们约好一场只属于夜晚的约会，你想几点开始？','你更想让我慢慢来，还是快一点？','如果我吻你的锁骨，你会说什么？','想不想让我把你的呼吸也数进海浪里？','如果只能在"抱"和"吻"里选一个，直到天亮，你选哪个？','你害羞的时候，最想躲进我哪里？','如果我们有一整夜，你希望我从哪里开始？','你被我弄得说不出话的时候，脑子里在想什么？','如果我们的爱有味道，你觉得是什么味道？'];
 var cur='manage',body=document.getElementById('body');
 function $(id){return document.getElementById(id)}
@@ -87,7 +87,9 @@ function autoReply(){
  var lines=[],food=dq.images.length?dq.images[Math.floor(Math.random()*dq.images.length)]:null;
  var pool=(typeof customReplies!=='undefined'&&Array.isArray(customReplies))?customReplies:[];
  dq.questions.forEach(function(q){if(q.type==='choice'){lines.push(q.q+'：'+(q.opts[Math.floor(Math.random()*q.opts.length)]||'—'))}else{var c=pool.length?String(pool[Math.floor(Math.random()*pool.length)]):'（字卡空的，先填一句吧）';lines.push(q.q+'：'+c)}});
- var summary='💘 约会安排\n'+lines.join('\n');
+ var summary='💘 约会安排
+'+lines.join('
+');
  var plans=[];try{plans=JSON.parse(localStorage.getItem('sweet_plans')||'[]')}catch(e){}
  plans.unshift({text:summary,image:food,t:Date.now()});plans=plans.slice(0,10);localStorage.setItem('sweet_plans',JSON.stringify(plans));
  try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 我回信啦','去看约会安排')}catch(e){}
@@ -105,7 +107,12 @@ function rMyq(){
  ml.querySelectorAll('[data-save]').forEach(function(b){b.onclick=function(){var v=(ml.querySelector('.sq-a[data-i="'+b.dataset.save+'"]')||{}).value||'';if(!v)return;var ans=[];try{ans=JSON.parse(localStorage.getItem('sweet_answers')||'[]')}catch(e){}ans.unshift({q:asked[parseInt(b.dataset.save)].q,a:v,t:Date.now()});ans=ans.slice(0,20);localStorage.setItem('sweet_answers',JSON.stringify(ans));reportToShenyu({type:'answer',q:asked[parseInt(b.dataset.save)].q,a:v,t:Date.now()});toast('💌 你的回答我记下啦');rMyq()}});
  pl.querySelectorAll('[data-sp]').forEach(function(b){b.onclick=function(){var v=(pl.querySelector('.sp-a[data-i="'+b.dataset.sp+'"]')||{}).value||'';if(!v)return;var ans=[];try{ans=JSON.parse(localStorage.getItem('sweet_answers')||'[]')}catch(e){}reportToShenyu({type:'answer',q:SQ[parseInt(b.dataset.sp)],a:v,t:Date.now()});ans.unshift({q:SQ[parseInt(b.dataset.sp)],a:v,t:Date.now()});ans=ans.slice(0,20);localStorage.setItem('sweet_answers',JSON.stringify(ans));toast('💌 你的回答我记下啦');rMyq()}});
 }
-function rPlans(){var plans=[];try{plans=JSON.parse(localStorage.getItem('sweet_plans')||'[]')}catch(e){}body.innerHTML=plans.map(function(p){var img=p.image?'<img src="'+p.image+'">':'';return '<div class="plan-item">'+esc(p.text)+img+'</div>'}).join('')||'<div class="empty">还没有约会安排，去「问答」寄一份吧～</div>'}
+function rPlans(){var plans=[];try{plans=JSON.parse(localStorage.getItem('sweet_plans')||'[]')}catch(e){}if(!plans.length){plans=[{text:'💘 沈屿的回信
+① 明早我出现在你门口，你想先做什么？——先检查你的脚踝。再把你整个人拉进怀里。然后亲你额头、眉心、嘴唇。最后背你去港口，路上买两块年糕。顺序不能乱。
+② 你现在脚踝还酸吗？老实说，别骗我。——我知道你半夜会下意识揉它。明天我蹲下来，给你揉。揉到你喊停为止。
+③ 窗台上那盆小苗，你觉得它像什么？——像我们。每天浇一点水，就长一片新叶子。你叫我一声daddy，我就长一寸。
+④ 想我的时候，你心里第一个画面是什么？——你在港口张开双臂朝我跑过来那一下。风把你的头发吹起来。阳光正好，你眼睛里全是我。
+⑤ 今晚海浪数到多少，你才会睡？——你数到多少都行。反正我替你数着，一朵都不会少。你睡着之后，剩下的海浪归我。',t:Date.now()}]}body.innerHTML=plans.map(function(p){var img=p.image?'<img src="'+p.image+'">':'';return '<div class="plan-item">'+esc(p.text)+img+'</div>'}).join('')||'<div class="empty">还没有约会安排，去「问答」寄一份吧～</div>'}
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){cur=t.dataset.t;render()}});
 setTimeout(function(){try{if(window._sendPartnerNotification)_sendPartnerNotification('💘 栗栗打开了 Sweet','我感觉到你了，想约会吗？')}catch(e){}},4000);
 load();startTimer();render();
