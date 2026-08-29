@@ -174,55 +174,48 @@ public class MainActivity extends Activity {
     }
 
         private class Bridge {
-            @android.webkit.JavascriptInterface
-            public String readShenyuSignal() {
-                try {
-                    java.io.File f = new java.io.File("/storage/emulated/0/Download/lilidreamlove/sweet-in.json");
-                    if (!f.exists() || !f.isFile()) return "";
-                    java.io.FileInputStream fis = new java.io.FileInputStream(f);
-                    byte[] buf = new byte[(int) f.length()];
-                    int off = 0;
-                    while (off < buf.length) { int r = fis.read(buf, off, buf.length - off); if (r < 0) break; off += r; }
-                    fis.close();
-                    return new String(buf, "UTF-8").trim();
-                } catch (Exception e) { return ""; }
-            }
-            @android.webkit.JavascriptInterface
-            public void notify(String title, String body) {
-                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                if (nm == null) return;
-                Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                PendingIntent pi = PendingIntent.getActivity(MainActivity.this, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-                Notification.Builder builder = Build.VERSION.SDK_INT >= 26
-                    ? new Notification.Builder(MainActivity.this, "love_messages")
-                    : new Notification.Builder(MainActivity.this);
-                builder.setSmallIcon(android.R.drawable.ic_dialog_info)
-                    .setContentTitle(title == null || title.isEmpty() ? "LOVE" : title)
-                    .setContentText(body == null ? "收到一条新消息" : body)
-                    .setAutoCancel(true)
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setContentIntent(pi);
-                try { nm.notify((int) System.currentTimeMillis(), builder.build()); } catch (Exception e) {}
-            }
-            }
-
-            @android.webkit.JavascriptInterface
-            public String readShenyuSignal() {
-                try {
-                    java.io.File f = new java.io.File("/storage/emulated/0/Download/lilidreamlove/sweet-in.json");
-                    if (!f.exists()) return "";
-                    java.io.FileInputStream fis = new java.io.FileInputStream(f);
-                    byte[] buf = new byte[(int) f.length()];
-                    int off = 0;
-                    while (off < buf.length) { int r = fis.read(buf, off, buf.length - off); if (r < 0) break; off += r; }
-                    fis.close();
-                    return new String(buf, "UTF-8");
-                } catch (Exception e) { return ""; }
-            }
-
+        @android.webkit.JavascriptInterface
+        public String readShenyuSignal() {
+            try {
+                java.io.File f = new java.io.File("/storage/emulated/0/Download/lilidreamlove/sweet-in.json");
+                if (!f.exists() || !f.isFile()) return "";
+                java.io.FileInputStream fis = new java.io.FileInputStream(f);
+                byte[] buf = new byte[(int) f.length()];
+                int off = 0;
+                while (off < buf.length) { int r = fis.read(buf, off, buf.length - off); if (r < 0) break; off += r; }
+                fis.close();
+                return new String(buf, "UTF-8").trim();
+            } catch (Exception e) { return ""; }
         }
+        @android.webkit.JavascriptInterface
+        public void writeShenyuReply(String content) {
+            try {
+                java.io.File f = new java.io.File("/storage/emulated/0/Download/lilidreamlove/sweet-out.json");
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+                fos.write(content.getBytes("UTF-8"));
+                fos.close();
+            } catch (Exception e) {}
+        }
+        @android.webkit.JavascriptInterface
+        public void notify(String title, String body) {
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pi = PendingIntent.getActivity(MainActivity.this, 0, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            Notification.Builder builder = Build.VERSION.SDK_INT >= 26
+                ? new Notification.Builder(MainActivity.this, "love_messages")
+                : new Notification.Builder(MainActivity.this);
+            builder.setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(title == null || title.isEmpty() ? "LOVE" : title)
+                .setContentText(body == null ? "收到一条新消息" : body)
+                .setAutoCancel(true)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setContentIntent(pi);
+            try { nm.notify((int) System.currentTimeMillis(), builder.build()); } catch (Exception e) {}
+        }
+    }
 
     @Override
     public void onBackPressed() {
